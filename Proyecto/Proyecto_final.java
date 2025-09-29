@@ -1,12 +1,13 @@
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
 
-// Clases de Nodos
+// ---- Clases de Nodos
 class PriorityNode {    // Nodo colas de prioridad
     Tarea dato;
     final int priority;
@@ -36,6 +37,8 @@ class NodoArbol {
     }
 }
 
+// ---- Objetos
+
 // Producto
 class Producto{
     String nombre;
@@ -55,6 +58,11 @@ class Producto{
     }
     public int getPrecio() {
         return this.precio;
+    }
+
+    // Setter
+    public void setTrue() {
+        this.entregado = true;
     }
 
 
@@ -87,7 +95,7 @@ class Tarea{
     }
 }
 
-// ---- Clases y cola
+// ---- Tipo Listas
 
 // Cola de Prioridad
 class PriorityQueue {
@@ -174,7 +182,6 @@ class PriorityQueue {
         }
     }
 }
-
 // Arbol Binario
 class ArbolBinario {
     NodoArbol raiz;
@@ -284,7 +291,7 @@ class ArbolBinario {
 // Main
 public class Proyecto_final {
 
-    // BUSQUEDA: 
+    // BUSQUEDA
     public static Producto buscarPorNombre(String nombre, ArrayList<Producto> productos) {
         for (Producto producto : productos) {
             if (producto.getNombre().equalsIgnoreCase(nombre)) {
@@ -295,22 +302,20 @@ public class Proyecto_final {
     }
 
     // Sumar horas de tareas recursivamente
-    public static int sumarHorasRecursivo(List<Tarea> lista, int inicio, int fin) {
+    public static int sumarHoras(List<Tarea> lista, int inicio, int fin) {
         if (inicio > fin) return 0;
         if (inicio == fin) return lista.get(inicio).getHoras();
         int medio = (inicio + fin) / 2;
-        return sumarHorasRecursivo(lista, inicio, medio) + sumarHorasRecursivo(lista, medio + 1, fin);
+        return sumarHoras(lista, inicio, medio) + sumarHoras(lista, medio + 1, fin);
     }
 
-    // Distribuir tareas entre empleados
-    public static void distribuirTareasRec(List<Tarea> tareas, List<Integer> empleadosIds,
-                                        HashMap<Integer, List<Tarea>> asignaciones) {
+    // Distribuir tareas entre empleados rec
+    public static void distribuirTareas(List<Tarea> tareas, List<Integer> empleadosIds, HashMap<Integer, List<Tarea>> asignaciones) {
         if (tareas == null || tareas.isEmpty() || empleadosIds.isEmpty()) return;
         distribuirRecHelper(tareas, 0, tareas.size() - 1, empleadosIds, asignaciones);
     }
 
-    private static void distribuirRecHelper(List<Tarea> tareas, int inicio, int fin,
-                                            List<Integer> empleadosIds, HashMap<Integer, List<Tarea>> asignaciones) {
+    private static void distribuirRecHelper(List<Tarea> tareas, int inicio, int fin, List<Integer> empleadosIds, HashMap<Integer, List<Tarea>> asignaciones) {
         if (inicio > fin) return;
         if (inicio == fin) {
             int emp = empleadoConMenorCarga(empleadosIds, asignaciones);
@@ -339,19 +344,35 @@ public class Proyecto_final {
 
     // Sumar horas asignadas a un empleado
     private static int horasAsignadasAEmpleado(int id, HashMap<Integer, List<Tarea>> asignaciones) {
-    List<Tarea> l = asignaciones.get(id);
-    if (l == null || l.isEmpty()) return 0;
-    int sum = 0;
-    for (Tarea t : l) sum += t.getHoras();
-    return sum;
-}
+        List<Tarea> l = asignaciones.get(id);
+        if (l == null || l.isEmpty()) return 0;
+        int sum = 0;
+        for (Tarea t : l) sum += t.getHoras();
+        return sum;
+    }
 
     private static void obtenerIdsEmpleados(NodoArbol nodo, List<Integer> ids) {
-    if (nodo == null) return;
-    ids.add(nodo.valor);
-    obtenerIdsEmpleados(nodo.hijoizquierdo, ids);
-    obtenerIdsEmpleados(nodo.hijoderecho, ids);
-}
+        if (nodo == null) return;
+        ids.add(nodo.valor);
+        obtenerIdsEmpleados(nodo.hijoizquierdo, ids);
+        obtenerIdsEmpleados(nodo.hijoderecho, ids);
+    }
+
+    // Grafos
+    public static void mostrarJerarquia(HashMap<Integer, List<Integer>> subordinados, HashMap<Integer, String> nombres, int jefeId, int nivel) {
+        // Indentación según nivel
+        for (int i = 0; i < nivel; i++) System.out.print("  ");
+        System.out.println(nombres.get(jefeId) + " (ID: " + jefeId + ")");
+
+        // Recorrer subordinados
+        List<Integer> subs = subordinados.get(jefeId);
+        if (subs != null) {
+            for (int sub : subs) {
+                mostrarJerarquia(subordinados, nombres, sub, nivel + 1);
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -374,6 +395,22 @@ public class Proyecto_final {
         Producto lentes = new Producto("Lentes de sol", 55);
         Producto reloj = new Producto("Reloj", 100);
         Producto bolsa = new Producto("Bolsa Roja", 70);
+
+        // Listas Grafos
+        HashMap<Integer, List<Integer>> subs = new HashMap<>();
+        HashMap<Integer, String> nombres = new HashMap<>();
+
+        // Agregar empleados
+        nombres.put(1, "Isabel");
+        nombres.put(201, "Dafne");
+        nombres.put(202, "Valentin");
+        nombres.put(301, "Jocelyn");
+        nombres.put(302, "David");
+
+        // Definir subordinados
+        subs.put(1, new ArrayList<>(Arrays.asList(201, 301)));
+        subs.put(201, new ArrayList<>(Arrays.asList(202)));
+        subs.put(301, new ArrayList<>(Arrays.asList(302)));
 
         // Agregar productos a lista productos
         productos.add(camisa);
@@ -450,6 +487,7 @@ public class Proyecto_final {
                                         System.out.println("\nIngrese el nombre del producto deseado");
                                         System.out.print(">>> ");
                                         String nombre = sc.next();
+                                        sc.nextLine();
                                         Producto compra = buscarPorNombre(nombre, productos);
                                         
                                         // Algoritmo Busqueda en uso
@@ -462,6 +500,7 @@ public class Proyecto_final {
                                             System.out.println("\nQue tipo de entrega desea?: \n1-. Premiun \n2-. Regular \n(Si elige premium se le dara más prioridad a su pedido al enviar)");
                                             System.out.print(">>> ");
                                             int entrega = sc.nextInt();
+                                            sc.nextLine();
                                             
                                             if(entrega == 1) {
                                                 System.out.println("Su pedido tomara prioridad sobre otros.");
@@ -537,6 +576,7 @@ public class Proyecto_final {
                                             System.out.println("\nIngrese el nombre del producto");
                                             System.out.print(">>> ");
                                             String nombre = sc.next();
+                                            sc.nextLine();
                                             Producto compra = buscarPorNombre(nombre, carrito);
                                             
                                             // Algoritmo Busqueda en uso
@@ -555,12 +595,14 @@ public class Proyecto_final {
                                                     Tarea nuevo = new Tarea(nombre, 2, compra.nombre, 2);
                                                     tareas.enqueue(nuevo, nuevo.prioridad);
 
+
                                                 } else {
                                                     System.out.println("Entendido");
                                                     Tarea nuevo = new Tarea(nombre, 3, compra.nombre, 4);
                                                     tareas.enqueue(nuevo, nuevo.prioridad);
                                                 }
-                                                System.out.println("\n   Gracias por su compra!");
+                                                carrito.remove(compra);
+                                                System.out.println("\n -- Gracias por su compra!");
 
                                             }else{
                                                 System.out.println("\nProducto no encontrado, intente de nuevo");
@@ -601,14 +643,14 @@ public class Proyecto_final {
                                 switch(opcion2) {
                                     case 1: // Productos Entregados
                                         System.err.println("\n Productos Entregados: ");
-                                        for(Producto p : historial) {
+                                        for(Producto p : entregados) {
                                             System.out.println(" - " + p.nombre + " $" + p.precio);
                                         }
                                         break;
 
                                     case 2: // Productos No Entregados
                                         System.err.println("\n Productos No Entregados: ");
-                                        for(Producto p : historial) {
+                                        for(Producto p : noEntregados) {
                                             System.out.println(" - " + p.nombre + " $" + p.precio);
                                         }
                                         break;
@@ -753,7 +795,7 @@ public class Proyecto_final {
                                         List<Tarea> listaTareas = new ArrayList<>();
                                         while (tareas.peek() != null) listaTareas.add(tareas.dequeue());
                                         // Distribuir
-                                        distribuirTareasRec(listaTareas, empleadosIds, asignaciones);
+                                        distribuirTareas(listaTareas, empleadosIds, asignaciones);
 
                                         // Mostrar resultados
                                         System.out.println("\nTareas distribuidas:");
@@ -768,7 +810,7 @@ public class Proyecto_final {
                                     case 4: // Horas faltantes de trabajo
                                         List<Tarea> lista = new ArrayList<>();
                                         while (tareas.peek() != null) lista.add(tareas.dequeue());
-                                        int totalHoras = sumarHorasRecursivo(lista, 0, lista.size() - 1);
+                                        int totalHoras = sumarHoras(lista, 0, lista.size() - 1);
                                         System.out.println("\nTotal de horas pendientes de trabajo: " + totalHoras);
                                         break;
                                                                 
@@ -783,7 +825,7 @@ public class Proyecto_final {
                                 empleados.mostrar(empleados.raiz, " ");
                                 
 
-                                System.out.println("\n1-. Agregar empleado  2-. Buscar empleado por ID   3-. Regresar");
+                                System.out.println("\n1-. Agregar empleado  2-. Buscar empleado por ID   3-. Mostrar jerarquia(grafos)   4-. Regresar");
                                 System.out.print(">>> ");
                                 opcion = sc.nextInt();
                                 sc.nextLine();
@@ -818,11 +860,16 @@ public class Proyecto_final {
 
                                         break;
 
-                                    case 3: // Regresar
+                                    case 3: // Jerarquia
+                                        mostrarJerarquia(subs, nombres, 1, 0);
+                                        break;
+
+                                    case 4: // Regresar
                                         break;
                                 }
                                 
                             case 4: // Salir
+                                repetirAdmin = false;
                                 break;
                         }
                     }
