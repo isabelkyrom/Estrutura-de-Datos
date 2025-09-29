@@ -148,6 +148,7 @@ class ArbolBinario {
         mostrar(nodo.hijoderecho, espacio);
     }
 }
+
 public class Actividad_4_ED {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
