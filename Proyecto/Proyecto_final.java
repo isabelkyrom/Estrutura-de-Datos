@@ -1,11 +1,11 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Scanner;
+import java.util.HashMap;
 import java.util.Stack;
+import java.util.Scanner;
+import java.util.InputMismatchException;
 
 // ---- Clases de Nodos
 class PriorityNode {    // Nodo colas de prioridad
